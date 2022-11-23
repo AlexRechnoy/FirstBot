@@ -1,0 +1,3 @@
+{
+    "files": ["main.py","botTimer.py","botData.py","botKeyboard.py","botCommands.py"]
+}

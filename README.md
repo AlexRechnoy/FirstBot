@@ -1,1 +1,1 @@
-# courseBot
+# FirstBot
