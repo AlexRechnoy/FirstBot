@@ -1,5 +1,6 @@
 # This Python file uses the following encoding: utf-8
 from pathlib import Path
+from botUser import BotUser
 import configparser
 import sqlite3
 import random
@@ -18,7 +19,8 @@ class BotData:
     def __init__(self):
         self.messageCounter=0
         self.val=0
-        self.id=[]
+        self.botUsers=[]
+        #self.id=[]
         self.conn = sqlite3.connect('botData.db')
         self.cur= self.conn.cursor()
         self.__readIDfromFile()
@@ -35,6 +37,27 @@ class BotData:
                          """)
         self.conn.commit()
 
+    def userIDexists(self, id):
+        exists=False
+        for botUser in self.botUsers:
+            if botUser.id==id:
+                exists=True
+        return exists
+
+    def userIDs(self):
+        IDs=[]
+        for botUser in self.botUsers:
+            IDs.append(botUser.id)
+        return IDs
+
+    def getUserFromId(self,id):
+        print('getUserFromId')
+        print(id)
+        for botUser in self.botUsers:
+            if botUser.id==id:
+                print('getUserFromId!!!')
+                return botUser
+
     def __readConfig(self):
         file=Path(config_file_path)
         config = configparser.ConfigParser()
@@ -48,7 +71,10 @@ class BotData:
             f = open(ids_txt_file,'r')
             lines=f.readlines()
             for line in lines:
-                self.id.append(int(line))
+                userId=int(line)
+                print(userId)
+                self.botUsers.append(BotUser(userId))
+                #self.id.append(userId)
             f.close()
 
     def getFailEmoji(self):

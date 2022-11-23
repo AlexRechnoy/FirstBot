@@ -3,7 +3,7 @@ from aiogram import Bot, Dispatcher, executor, types
 #from aiogram.types import ParseMode, InputMediaPhoto, InputMediaVideo, ChatActions
 from aiogram.dispatcher.filters import Text
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from botKeyboard import botInlineKbd
+from botKeyboard import botInlineKbd,botStartNotifyKbd
 from botData import BotData
 from botTimer import send_locko_message, send_locko_moex_message,noon_send_message
 from botCommands import cmd_help, cmd_start
@@ -104,6 +104,18 @@ async def send_cube(call: types.CallbackQuery):
     await call.message.answer("Число {} в кубе = {}".format(float(botData.val),float(botData.val)*float(botData.val)*float(botData.val)))
     await call.answer()
 
+@dp.callback_query_handler(text="stop_notify")
+async def send_stop_notify(call: types.CallbackQuery):
+    botData.getUserFromId(call.message.chat.id).notify=False
+    await call.message.answer("Ну все! Больше тебе ничего не пришлю!!!(Оповещения отключены)",reply_markup=botStartNotifyKbd)
+    await call.answer()
+
+@dp.callback_query_handler(text="start_notify")
+async def send_start_notify(call: types.CallbackQuery):
+    botData.getUserFromId(call.message.chat.id).notify = True
+    await call.message.answer("Начинаю спамит!!! (Оповещения включены)")
+    await call.answer()
+
 @dp.message_handler(commands=['bear'])
 async def send_bear(message: types.Message):
     await bot.send_message(message.from_user.id,emoji.emojize(":bear:"))
@@ -117,18 +129,25 @@ async def echo(message: types.Message):
     botData.addMessageToDB(int(message.from_user.id),message.date,message.text)
     newID=-1
 
-    if message.from_user.id not in botData.id:
-        newID=message.from_user.id
-        botData.id.append(int(message.from_user.id))
+    if not botData.userIDexists(message.from_user.id):
+        newID = message.from_user.id
+        print('newID')
+        botData.id.append(int(newID))
         botData.writeIDtoFile()
+
+    #if message.from_user.id not in botData.id:
+    #    newID=message.from_user.id
+    #    botData.id.append(int(message.from_user.id))
+    #    botData.writeIDtoFile()
     if re.match(r"^[0-9.\-]+$", message.text):
         botData.val=float(message.text)
-        for userId in botData.id :
+        for botUser in botData.botUsers :
+            userId=botUser.id
             if (newID!=-1) and (newID!=userId) :
                 await bot.send_message(userId,"У меня новый пользователь с ID ={}".format(newID))
             if userId==message.from_user.id:
                 await bot.send_message(userId,"Всего сообщений = {}".format(botData.messageCounter))
-                await bot.send_message(userId,"Все пользователи = {}".format(botData.id))
+                await bot.send_message(userId,"Все пользователи = {}".format(botData.userIDs()))
             else:
                 await bot.send_message(userId,"...Кто-то прислал мне число...Число {} в квадрате = {}".format(float(botData.val),float(botData.val)*float(botData.val)))
 

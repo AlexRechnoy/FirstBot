@@ -13,5 +13,9 @@ btnsInline = [InlineKeyboardButton(text="Квадрат", callback_data="square"
               InlineKeyboardButton(text="Куб", callback_data="cube"),
               InlineKeyboardButton(text="Отправить свою локацию️ 🗺", callback_data="location")]
 botInlineKbd.add(*btnsInline)
-#buttons = ["Квадрат", "Куб"]
-#botKbd.add(*buttons)
+
+botStopNotifyKbd = InlineKeyboardMarkup()
+botStopNotifyKbd.add(InlineKeyboardButton(text="Отменить оповещения", callback_data="stop_notify"))
+
+botStartNotifyKbd = InlineKeyboardMarkup()
+botStartNotifyKbd.add(InlineKeyboardButton(text="Включить оповещения", callback_data="start_notify"))
