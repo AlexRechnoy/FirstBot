@@ -18,7 +18,6 @@ import emoji
 
 
 
-
 botData=BotData()
 bot = Bot(token=config.BOT_TOKEN)
 dp = Dispatcher(bot) #Диспетчер — объект, занимающийся получением апдейтов от Telegram с последующим выбором хэндлера для обработки принятого апдейта.
@@ -160,10 +159,10 @@ async def echo(message: types.Message):
         await bot.send_message(message.from_user.id,
                                emoji.emojize(botData.getFailEmoji()))
         await bot.send_message(chat_id=message.from_user.id,
-                               text="*'{}' \- это что такое ??? Введите число \!\!\!*".format(message.text),
+                               text="*'{}' \- Я не понимаю о чем ты\.\.\. Придется лезть в википедию \!\!\!*".format(message.text),
                                parse_mode='MarkdownV2')
-
-
+        s=botData.wiki.getWikiText(str(message.text))
+        await bot.send_message(message.from_user.id,s)
 
 if __name__ == '__main__':
     scheduler.start()

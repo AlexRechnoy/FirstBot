@@ -5,6 +5,7 @@ import configparser
 import sqlite3
 import random
 import os
+from botWiki import BotWiki
 from time import sleep
 
 import requests
@@ -20,6 +21,7 @@ class BotData:
         self.messageCounter=0
         self.val=0
         self.botUsers=[]
+        self.wiki = BotWiki()
         #self.id=[]
         self.conn = sqlite3.connect('botData.db')
         self.cur= self.conn.cursor()
