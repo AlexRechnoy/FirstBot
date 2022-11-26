@@ -20,7 +20,7 @@ import emoji
 
 
 botData=BotData()
-bot = Bot(token=config.BOT_TOKEN111)
+bot = Bot(token=config.BOT_TOKEN)
 dp = Dispatcher(bot) #Диспетчер — объект, занимающийся получением апдейтов от Telegram с последующим выбором хэндлера для обработки принятого апдейта.
 dp.register_message_handler(cmd_help, commands="help")
 dp.register_message_handler(cmd_start, commands="start")
