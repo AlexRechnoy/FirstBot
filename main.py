@@ -3,21 +3,24 @@ from aiogram import Bot, Dispatcher, executor, types
 #from aiogram.types import ParseMode, InputMediaPhoto, InputMediaVideo, ChatActions
 from aiogram.dispatcher.filters import Text
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from setuptools._distutils.command.config import config
+
 from botKeyboard import botInlineKbd,botStartNotifyKbd
 from botData import BotData
 from botTimer import send_locko_message, send_locko_moex_message,noon_send_message
 from botCommands import cmd_help, cmd_start
+import config
 import os
 import re
 import emoji
 
 
 
-API_TOKEN = '5632685669:AAFcrSRYmc59DcdG4w1laHEsEW1y6EKP32g'
+
 
 
 botData=BotData()
-bot = Bot(token=API_TOKEN)
+bot = Bot(token=config.BOT_TOKEN)
 dp = Dispatcher(bot) #Диспетчер — объект, занимающийся получением апдейтов от Telegram с последующим выбором хэндлера для обработки принятого апдейта.
 dp.register_message_handler(cmd_help, commands="help")
 dp.register_message_handler(cmd_start, commands="start")
