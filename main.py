@@ -155,7 +155,7 @@ async def echo(message: types.Message):
                 await bot.send_message(userId,"Всего сообщений = {}".format(botData.messageCounter))
                 await bot.send_message(userId,"Все пользователи = {}".format(botData.userIDs()))
             else:
-                await bot.send_message(userId,"...Кто-то прислал мне число...Число {} в квадрате = {}".format(float(botData.val),float(botData.val)*float(botData.val)))
+                await bot.send_message(userId,"... Кто-то прислал мне число...Число {} в квадрате = {}".format(float(botData.val),float(botData.val)*float(botData.val)))
 
         #await message.answer("В какую степень возвести?", reply_markup=botKbd)
         await message.answer("В какую степень возвести?", reply_markup=botInlineKbd)
