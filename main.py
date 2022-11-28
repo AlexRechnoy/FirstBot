@@ -13,9 +13,13 @@ import config
 import os
 import re
 import emoji
+import argparse
 
 
-
+def createParser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('endproc', nargs='?')
+    return parser
 
 
 botData=BotData()
@@ -165,5 +169,8 @@ async def echo(message: types.Message):
         await bot.send_message(message.from_user.id,s)
 
 if __name__ == '__main__':
-    scheduler.start()
-    executor.start_polling(dp, skip_updates=True)
+    parser = createParser()
+    namespace = parser.parse_args()
+    if not namespace.endproc:
+        scheduler.start()
+        executor.start_polling(dp, skip_updates=True)
