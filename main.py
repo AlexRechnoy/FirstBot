@@ -47,23 +47,22 @@ async def process_photo_command(message: types.Message):
 
 @dp.message_handler(commands=['USD'])
 async def cmd_USD(message: types.Message):
-    cbList,moexList,lockoList=botData.getCBCurrencies()
+    #cbList,moexList,lockoList=botData.getCBCurrencies()
+    lockoStr,moexStr,cbStr=botData.getCBCurrencies_()
     await bot.send_message(message.from_user.id,
                            '*Курсы ЦБ на сегодня : *',
                            parse_mode='MarkdownV2')
-    for str in cbList :
-        await bot.send_message(message.from_user.id,str)
+    await dp.bot.send_message(message.from_user.id, cbStr)
+
     await bot.send_message(message.from_user.id,
                            '*Биржевой курс : *',
                            parse_mode='MarkdownV2')
-    for str in moexList:
-        await bot.send_message(message.from_user.id,str)
+    await dp.bot.send_message(message.from_user.id, moexStr)
 
     await bot.send_message(message.from_user.id,
                                '*Курс в Локо\-банке: *',
                                parse_mode='MarkdownV2')
-    for str in lockoList:
-        await bot.send_message(message.from_user.id,str)
+    await dp.bot.send_message(message.from_user.id, lockoStr)
 
 @dp.message_handler(content_types=["photo"])
 async def get_photo(message):

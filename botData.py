@@ -143,6 +143,17 @@ class BotData:
 
         return CBList,moexList,lockoList
 
+    def getCBCurrencies_(self):
+        cbList, moexList, lockoList = self.getCBCurrencies()
+        lockoStr,moexStr,cbStr = '','',''
+        for str in lockoList:
+             lockoStr += '\n' + str
+        for str in moexList:
+            moexStr+='\n'+str
+        for str in cbList :
+            cbStr+='\n'+str
+        return lockoStr,moexStr,cbStr
+
     def getRandomPhoto(self):
         photo_list=[]
         for file in os.listdir('img/'):
