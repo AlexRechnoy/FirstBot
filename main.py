@@ -167,6 +167,7 @@ async def echo(message: types.Message):
         s=botData.wiki.getWikiText(str(message.text))
         await bot.send_message(message.from_user.id,s)
 
+
 if __name__ == '__main__':
     parser = createParser()
     namespace = parser.parse_args()
