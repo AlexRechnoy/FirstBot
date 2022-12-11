@@ -35,11 +35,6 @@ scheduler.add_job(send_locko_moex_message, "interval", minutes=150, args=(dp,bot
 scheduler.add_job(noon_send_message, "cron",hour='12',minute='00', second='00',args=(dp,botData))
 #
 
-#message_handler — это декоратор, который реагирует на входящие сообщения и содержит в себе функцию ответа.
-#Декоратор — это «обёртка» вокруг функций, позволяющая влиять на их работу без изменения кода самих функций.
-#В нашем случае мы управляем функцией, считая команды пользователя;
-#commands=['start'] — это команда, которая связана с декоратором и запускает вложенную в него функцию;
-
 
 @dp.message_handler(commands=['photo'])
 async def process_photo_command(message: types.Message):
