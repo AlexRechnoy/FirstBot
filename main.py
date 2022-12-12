@@ -7,7 +7,7 @@ from setuptools._distutils.command.config import config
 
 from botKeyboard import botInlineKbd,botStartNotifyKbd
 from botData import BotData
-from botTimer import send_locko_message, send_locko_moex_message,noon_send_message
+from botTimer import send_locko_message, send_locko_moex_message, noon_send_message, send_cb_message
 from botCommands import cmd_help, cmd_start
 import config
 import os
@@ -33,6 +33,7 @@ scheduler=AsyncIOScheduler()
 scheduler.add_job(send_locko_message, "interval", minutes=60, args=(dp,botData))
 scheduler.add_job(send_locko_moex_message, "interval", minutes=150, args=(dp,botData))
 scheduler.add_job(noon_send_message, "cron",hour='12',minute='00', second='00',args=(dp,botData))
+scheduler.add_job(send_cb_message, "cron",hour='15',minute='00', second='00',args=(dp,botData))
 #
 
 
@@ -42,7 +43,6 @@ async def process_photo_command(message: types.Message):
 
 @dp.message_handler(commands=['USD'])
 async def cmd_USD(message: types.Message):
-    #cbList,moexList,lockoList=botData.getCBCurrencies()
     lockoStr,moexStr,cbStr=botData.getCBCurrencies_()
     await bot.send_message(message.from_user.id,
                            '*Курсы ЦБ на сегодня : *',
@@ -151,7 +151,6 @@ async def echo(message: types.Message):
             else:
                 await bot.send_message(userId,"... Кто-то прислал  мне число...Число {} в квадрате = {}".format(float(botData.val),float(botData.val)*float(botData.val)))
 
-        #await message.answer("В какую степень возвести?", reply_markup=botKbd)
         await message.answer("В какую степень возвести?", reply_markup=botInlineKbd)
     else:
         await bot.send_message(message.from_user.id,
