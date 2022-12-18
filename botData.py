@@ -6,6 +6,7 @@ import sqlite3
 import random
 import os
 from botWiki import BotWiki
+import copy
 from time import sleep
 
 import requests
@@ -20,6 +21,10 @@ class BotData:
     def __init__(self):
         self.messageCounter=0
         self.val=0
+        self.lockoUSD    = dict(sale=0, buy=0)
+        self.lockoEUR    = dict(sale=0, buy=0)
+        self.lockoUSDold = dict(sale=0, buy=0)
+        self.lockoEURold = dict(sale=0, buy=0)
         self.botUsers=[]
         self.wiki = BotWiki()
         #self.id=[]
@@ -94,7 +99,8 @@ class BotData:
             answer.append(line.text)
         return answer
 
-    def getCBCurrencies(self):
+
+    def __parseCurrencies(self):
         def calcCurrency(currencyList):
             currenciesList=[]
             for currency in currencyList :
@@ -102,7 +108,6 @@ class BotData:
                 currencyName = currPropList[0].find('a').text
                 currencyVal  = currPropList[1].text
                 currenciesList.append('{} = {}'.format(currencyName,currencyVal))
-                print('{} = {}'.format(currencyName,currencyVal))
             return currenciesList
         h = {'User-Agent': 'Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 107.0.0.0 Safari / 537.36'}
         url = 'https://www.banki.ru/products/currency/'
@@ -111,40 +116,46 @@ class BotData:
         rate_section = soup.find('div', class_="cb-current-rates")
         rate_list = rate_section.findAll('tr', class_='cb-current-rates__list__item')
         CBList=calcCurrency(rate_list)
-        #
+        #Курс биржи
         moex_section = soup.find('table', class_='standard-table standard-table--row-highlight rate-indicators-table')
         usd_rate_section = moex_section.find('tr', {'data-test': 'moex-online-usd-row'})
         USDPropList = usd_rate_section.findAll('td')
         moexList=[]
-        moexList.append('{} = {} (время : {})'.format(USDPropList[0].text.strip(),USDPropList[2].text.strip(),USDPropList[1].text.strip()))
+        moexList.append('\U0001F4B5  {} (время : {})'.format(USDPropList[2].text.strip(),USDPropList[1].text.strip()))
         eur_rate_section = moex_section.find('tr', {'data-test': 'moex-online-eur-row'})
         EURPropList = eur_rate_section.findAll('td')
-        moexList.append('{} = {} (время : {})'.format(EURPropList[0].text.strip(), EURPropList[2].text.strip(), EURPropList[1].text.strip()))
-        #
+        moexList.append('\U0001F4B6  {} (время : {})'.format(EURPropList[2].text.strip(), EURPropList[1].text.strip()))
+        #Курc локо
+        lockoList=self.__parseLocko()
+        return CBList,moexList,lockoList
+
+    def __parseLocko(self):
+        # Курc локо
         url = 'https://www.banki.ru/products/currency/bank/locko-bank/usd/moskva/#bank-rates'
+        h = {'User-Agent': 'Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 107.0.0.0 Safari / 537.36'}
         r = requests.get(url, headers=h)
         soup = BeautifulSoup(r.content, 'html.parser')
         locko_section = soup.find('tbody', {'class': 'font-size-medium'})
         usd_section = locko_section.find('tr', {'class': 'bg-beige'})
         currPropList = usd_section.findAll('td')
-        lockoList=[]
-        lockoList.append('{} = {} / {} ( {})'.format(currPropList[0].text.strip(),
-                                                          currPropList[3].text.strip(),
-                                                          currPropList[4].text.strip(),
-                                                          currPropList[5].text.strip()))
+        self.lockoUSD['sale'] = currPropList[3].text.strip()
+        self.lockoUSD['buy']  = currPropList[4].text.strip()
+        lockoList = []
+        lockoList.append('\U0001F4B5  {} / {} ( {})'.format(self.lockoUSD['sale'],
+                                                            self.lockoUSD['buy'],
+                                                            currPropList[5].text.strip()))
 
         eur_section = locko_section.findAll('tr')[1]
         currPropList = eur_section.findAll('td')
-        lockoList.append(
-            '{} = {} / {} ( {})'.format(currPropList[0].text.strip(),
-                                             currPropList[3].text.strip(),
-                                             currPropList[4].text.strip(),
-                                             currPropList[5].text.strip()))
-
-        return CBList,moexList,lockoList
+        self.lockoEUR['sale'] = currPropList[3].text.strip()
+        self.lockoEUR['buy']  = currPropList[4].text.strip()
+        lockoList.append('\U0001F4B6  {} / {} ( {})'.format(self.lockoEUR['sale'],
+                                                            self.lockoEUR['buy'],
+                                                            currPropList[5].text.strip()))
+        return lockoList
 
     def getCBCurrencies_(self):
-        cbList, moexList, lockoList = self.getCBCurrencies()
+        cbList, moexList, lockoList = self.__parseCurrencies()
         lockoStr,moexStr,cbStr = '','',''
         for str in lockoList:
              lockoStr += '\n' + str
@@ -153,6 +164,20 @@ class BotData:
         for str in cbList :
             cbStr+='\n'+str
         return lockoStr,moexStr,cbStr
+
+    def getLockoCurrencies(self):
+        lockoList = self.__parseLocko()
+        lockoStr=''
+        for str in lockoList:
+             lockoStr += '\n' + str
+        if (self.lockoUSD!=self.lockoUSDold) or (self.lockoEUR!=self.lockoEURold):
+            self.lockoEURold=copy.deepcopy(self.lockoEUR)
+            self.lockoUSDold = copy.deepcopy(self.lockoUSD)
+            newLockoData=True
+        else:
+            newLockoData=False
+        return lockoStr,newLockoData
+
 
     def getRandomPhoto(self):
         photo_list=[]

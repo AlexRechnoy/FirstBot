@@ -4,12 +4,11 @@ from aiogram import Dispatcher
 
 
 #Реализация таймера
-async def send_locko_moex_message(dp:Dispatcher,botData:BotData):
+async def  send_locko_moex_message(dp:Dispatcher,botData:BotData):
     for botUser in botData.botUsers :
         if botUser.notify:
             userId = botUser.id
             lockoStr, moexStr, cbStr = botData.getCBCurrencies_()
-            await dp.bot.send_message(userId,"\U0001F4B5")
             await dp.bot.send_message(userId,
                                   '*Напоминаю актуальные курсы  : *',
                                   parse_mode='MarkdownV2')
@@ -26,13 +25,13 @@ async def send_locko_moex_message(dp:Dispatcher,botData:BotData):
 
 
 async def send_locko_message(dp: Dispatcher, botData: BotData):
-    lockoStr, moexStr, cbStr = botData.getCBCurrencies_()
-    for botUser in botData.botUsers:
-        if botUser.notify:
-            userId = botUser.id
-            await dp.bot.send_message(userId, "\U0001F4B5")
-            await dp.bot.send_message(userId,'*Курс в Локо\-банке: *',parse_mode='MarkdownV2')
-            await dp.bot.send_message(userId, lockoStr, reply_markup=botStopNotifyKbd)
+    lockoStr,newData = botData.getLockoCurrencies()
+    if newData:
+        for botUser in botData.botUsers:
+            if botUser.notify:
+                userId = botUser.id
+                await dp.bot.send_message(userId,'*Обновлен курс в Локо\-банке: *',parse_mode='MarkdownV2')
+                await dp.bot.send_message(userId, lockoStr, reply_markup=botStopNotifyKbd)
 
 
 async def noon_send_message(dp:Dispatcher,botData:BotData):

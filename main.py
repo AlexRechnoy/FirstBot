@@ -30,7 +30,7 @@ dp.register_message_handler(cmd_start, commands="start")
 
 #Реализация таймера
 scheduler=AsyncIOScheduler()
-scheduler.add_job(send_locko_message, "interval", minutes=60, args=(dp,botData))
+scheduler.add_job(send_locko_message, "interval", minutes=1, args=(dp,botData))
 scheduler.add_job(send_locko_moex_message, "interval", minutes=150, args=(dp,botData))
 scheduler.add_job(noon_send_message, "cron",hour='12',minute='00', second='00',args=(dp,botData))
 scheduler.add_job(send_cb_message, "cron",hour='15',minute='00', second='00',args=(dp,botData))
