@@ -7,8 +7,6 @@ import random
 import os
 from botWiki import BotWiki
 import copy
-from time import sleep
-
 import requests
 from bs4 import BeautifulSoup
 from aiogram.types import InputFile
@@ -21,10 +19,10 @@ class BotData:
     def __init__(self):
         self.messageCounter=0
         self.val=0
-        self.lockoUSD    = dict(sale=0, buy=0)
-        self.lockoEUR    = dict(sale=0, buy=0)
-        self.lockoUSDold = dict(sale=0, buy=0)
-        self.lockoEURold = dict(sale=0, buy=0)
+        self.lockoUSD    = dict(sale=0.0, buy=0.0)
+        self.lockoEUR    = dict(sale=0.0, buy=0.0)
+        self.lockoUSDold = dict(sale=0.0, buy=0.0)
+        self.lockoEURold = dict(sale=0.0, buy=0.0)
         self.botUsers=[]
         self.wiki = BotWiki()
         #self.id=[]
@@ -138,20 +136,22 @@ class BotData:
         locko_section = soup.find('tbody', {'class': 'font-size-medium'})
         usd_section = locko_section.find('tr', {'class': 'bg-beige'})
         currPropList = usd_section.findAll('td')
-        self.lockoUSD['sale'] = currPropList[3].text.strip()
-        self.lockoUSD['buy']  = currPropList[4].text.strip()
+        self.lockoUSD['sale'] = float(currPropList[3].text.strip().replace(",","."))
+        self.lockoUSD['buy']  = float(currPropList[4].text.strip().replace(",","."))
         lockoList = []
-        lockoList.append('\U0001F4B5  {} / {} ( {})'.format(self.lockoUSD['sale'],
-                                                            self.lockoUSD['buy'],
-                                                            currPropList[5].text.strip()))
+        lockoList.append('\U0001F4B5  {} / {} изменение : {}'.format(self.lockoUSD['sale'],
+                                                                     self.lockoUSD['buy'],
+                                                                     self.lockoUSD['buy']-self.lockoUSDold['buy']))
+        lockoList.append('\U0000231B  {}'.format( currPropList[5].text.strip()))
 
         eur_section = locko_section.findAll('tr')[1]
         currPropList = eur_section.findAll('td')
-        self.lockoEUR['sale'] = currPropList[3].text.strip()
-        self.lockoEUR['buy']  = currPropList[4].text.strip()
-        lockoList.append('\U0001F4B6  {} / {} ( {})'.format(self.lockoEUR['sale'],
-                                                            self.lockoEUR['buy'],
-                                                            currPropList[5].text.strip()))
+        self.lockoEUR['sale'] = float(currPropList[3].text.strip().replace(",","."))
+        self.lockoEUR['buy']  = float(currPropList[4].text.strip().replace(",","."))
+        lockoList.append('\U0001F4B6  {} / {} изменение : {}'.format(self.lockoEUR['sale'],
+                                                                     self.lockoEUR['buy'],
+                                                                     self.lockoEUR['buy']-self.lockoEURold['buy']))
+        lockoList.append('\U0000231B  {}'.format(currPropList[5].text.strip()))
         return lockoList
 
     def getCBCurrencies_(self):

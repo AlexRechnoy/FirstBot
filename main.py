@@ -3,8 +3,6 @@ from aiogram import Bot, Dispatcher, executor, types
 #from aiogram.types import ParseMode, InputMediaPhoto, InputMediaVideo, ChatActions
 from aiogram.dispatcher.filters import Text
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from setuptools._distutils.command.config import config
-
 from botKeyboard import botInlineKbd,botStartNotifyKbd
 from botData import BotData
 from botTimer import send_locko_message, send_locko_moex_message, noon_send_message, send_cb_message
@@ -30,7 +28,7 @@ dp.register_message_handler(cmd_start, commands="start")
 
 #Реализация таймера
 scheduler=AsyncIOScheduler()
-scheduler.add_job(send_locko_message, "interval", minutes=1, args=(dp,botData))
+scheduler.add_job(send_locko_message, "interval", minutes=5, args=(dp,botData))
 scheduler.add_job(send_locko_moex_message, "interval", minutes=150, args=(dp,botData))
 scheduler.add_job(noon_send_message, "cron",hour='12',minute='00', second='00',args=(dp,botData))
 scheduler.add_job(send_cb_message, "cron",hour='15',minute='00', second='00',args=(dp,botData))
