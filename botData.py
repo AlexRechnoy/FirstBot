@@ -128,6 +128,11 @@ class BotData:
         return CBList,moexList,lockoList
 
     def __parseLocko(self):
+        def getImage(dCourse):
+            if dCourse>0:
+                return '\U00002705'
+            else:
+                return '\U0000274C'
         # Курc локо
         url = 'https://www.banki.ru/products/currency/bank/locko-bank/usd/moskva/#bank-rates'
         h = {'User-Agent': 'Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 107.0.0.0 Safari / 537.36'}
@@ -138,19 +143,23 @@ class BotData:
         currPropList = usd_section.findAll('td')
         self.lockoUSD['sale'] = float(currPropList[3].text.strip().replace(",","."))
         self.lockoUSD['buy']  = float(currPropList[4].text.strip().replace(",","."))
+        dCourse=self.lockoUSD['buy']-self.lockoUSDold['buy']
         lockoList = []
-        lockoList.append('\U0001F4B5  {} / {} изменение : {}'.format(self.lockoUSD['sale'],
-                                                                     self.lockoUSD['buy'],
-                                                                     self.lockoUSD['buy']-self.lockoUSDold['buy']))
+        lockoList.append('\U0001F4B5  {} / {} {} {:.2f} руб'.format(self.lockoUSD['sale'],
+                                                                    self.lockoUSD['buy'],
+                                                                    getImage(dCourse),
+                                                                    dCourse))
         lockoList.append('\U0000231B  {}'.format( currPropList[5].text.strip()))
 
         eur_section = locko_section.findAll('tr')[1]
         currPropList = eur_section.findAll('td')
         self.lockoEUR['sale'] = float(currPropList[3].text.strip().replace(",","."))
         self.lockoEUR['buy']  = float(currPropList[4].text.strip().replace(",","."))
-        lockoList.append('\U0001F4B6  {} / {} изменение : {}'.format(self.lockoEUR['sale'],
+        dCourse = self.lockoEUR['buy'] - self.lockoEURold['buy']
+        lockoList.append('\U0001F4B6  {} / {} {} {:.2f} руб'.format(self.lockoEUR['sale'],
                                                                      self.lockoEUR['buy'],
-                                                                     self.lockoEUR['buy']-self.lockoEURold['buy']))
+                                                                     getImage(dCourse),
+                                                                     dCourse))
         lockoList.append('\U0000231B  {}'.format(currPropList[5].text.strip()))
         return lockoList
 

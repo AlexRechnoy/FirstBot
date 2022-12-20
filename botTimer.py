@@ -33,7 +33,6 @@ async def send_locko_message(dp: Dispatcher, botData: BotData):
                 await dp.bot.send_message(userId,'*Обновлен курс в Локо\-банке: *',parse_mode='MarkdownV2')
                 await dp.bot.send_message(userId, lockoStr, reply_markup=botStopNotifyKbd)
 
-
 async def noon_send_message(dp:Dispatcher,botData:BotData):
     for botUser in botData.botUsers:
         userId = botUser.id

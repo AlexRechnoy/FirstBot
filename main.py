@@ -55,7 +55,7 @@ async def cmd_USD(message: types.Message):
     await bot.send_message(message.from_user.id,
                                '*Курс в Локо\-банке: *',
                                parse_mode='MarkdownV2')
-    await dp.bot.send_message(message.from_user.id, lockoStr)
+    await dp.bot.send_message(message.from_user.id, lockoStr , parse_mode='Markdown')
 
 @dp.message_handler(content_types=["photo"])
 async def get_photo(message):
