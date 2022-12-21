@@ -124,8 +124,8 @@ class BotData:
         EURPropList = eur_rate_section.findAll('td')
         moexList.append('\U0001F4B6  {} (время : {})'.format(EURPropList[2].text.strip(), EURPropList[1].text.strip()))
         #Курc локо
-        lockoList=self.__parseLocko()
-        return CBList,moexList,lockoList
+        lockoList,newLockoData=self.__parseLocko()
+        return CBList,moexList,lockoList,newLockoData
 
     def __parseLocko(self):
         def getImage(dCourse):
@@ -133,6 +133,18 @@ class BotData:
                 return '\U00002705'
             else:
                 return '\U0000274C'
+        def getLockoDataStr(currencyDist : dict, oldCourse : float):
+            dCourse = currencyDist['buy'] - oldCourse
+            if dCourse==0:
+                lockoStr='\U0001F4B6  {} / {} '.format(currencyDist['sale'],currencyDist['buy'])
+            else:
+                lockoStr='\U0001F4B5  {} / {} {} {:.2f} руб'.format(currencyDist['sale'],
+                                                                    currencyDist['buy'],
+                                                                    getImage(dCourse),
+                                                                    dCourse)
+            return lockoStr
+
+
         # Курc локо
         url = 'https://www.banki.ru/products/currency/bank/locko-bank/usd/moskva/#bank-rates'
         h = {'User-Agent': 'Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 107.0.0.0 Safari / 537.36'}
@@ -141,30 +153,30 @@ class BotData:
         locko_section = soup.find('tbody', {'class': 'font-size-medium'})
         usd_section = locko_section.find('tr', {'class': 'bg-beige'})
         currPropList = usd_section.findAll('td')
+        # USD
         self.lockoUSD['sale'] = float(currPropList[3].text.strip().replace(",","."))
         self.lockoUSD['buy']  = float(currPropList[4].text.strip().replace(",","."))
-        dCourse=self.lockoUSD['buy']-self.lockoUSDold['buy']
         lockoList = []
-        lockoList.append('\U0001F4B5  {} / {} {} {:.2f} руб'.format(self.lockoUSD['sale'],
-                                                                    self.lockoUSD['buy'],
-                                                                    getImage(dCourse),
-                                                                    dCourse))
-        lockoList.append('\U0000231B  {}'.format( currPropList[5].text.strip()))
-
+        lockoList.append(getLockoDataStr(self.lockoUSD,self.lockoUSDold['buy']))
+        #EUR
         eur_section = locko_section.findAll('tr')[1]
         currPropList = eur_section.findAll('td')
         self.lockoEUR['sale'] = float(currPropList[3].text.strip().replace(",","."))
         self.lockoEUR['buy']  = float(currPropList[4].text.strip().replace(",","."))
-        dCourse = self.lockoEUR['buy'] - self.lockoEURold['buy']
-        lockoList.append('\U0001F4B6  {} / {} {} {:.2f} руб'.format(self.lockoEUR['sale'],
-                                                                     self.lockoEUR['buy'],
-                                                                     getImage(dCourse),
-                                                                     dCourse))
+        lockoList.append(getLockoDataStr(self.lockoEUR, self.lockoEURold['buy']))
         lockoList.append('\U0000231B  {}'.format(currPropList[5].text.strip()))
-        return lockoList
+        #Записать старые значения
+        if (self.lockoUSD != self.lockoUSDold) or (self.lockoEUR != self.lockoEURold):
+            self.lockoEURold = copy.deepcopy(self.lockoEUR)
+            self.lockoUSDold = copy.deepcopy(self.lockoUSD)
+            newLockoData = True
+        else:
+            newLockoData = False
+
+        return lockoList,newLockoData
 
     def getCBCurrencies_(self):
-        cbList, moexList, lockoList = self.__parseCurrencies()
+        cbList, moexList, lockoList,newLockoData = self.__parseCurrencies()
         lockoStr,moexStr,cbStr = '','',''
         for str in lockoList:
              lockoStr += '\n' + str
@@ -175,16 +187,17 @@ class BotData:
         return lockoStr,moexStr,cbStr
 
     def getLockoCurrencies(self):
-        lockoList = self.__parseLocko()
+        lockoList,newLockoData = self.__parseLocko()
         lockoStr=''
         for str in lockoList:
              lockoStr += '\n' + str
-        if (self.lockoUSD!=self.lockoUSDold) or (self.lockoEUR!=self.lockoEURold):
-            self.lockoEURold=copy.deepcopy(self.lockoEUR)
-            self.lockoUSDold = copy.deepcopy(self.lockoUSD)
-            newLockoData=True
-        else:
-            newLockoData=False
+        #if (self.lockoUSD!=self.lockoUSDold) or (self.lockoEUR!=self.lockoEURold):
+        #    self.lockoEURold=copy.deepcopy(self.lockoEUR)
+        #    self.lockoUSDold=copy.deepcopy(self.lockoUSD)
+        #    print('self.lockoUSDold = '+self.lockoUSDold)
+        #    newLockoData=True
+        #else:
+        #    newLockoData=False
         return lockoStr,newLockoData
 
 
