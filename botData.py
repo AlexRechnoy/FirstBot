@@ -1,6 +1,7 @@
 # This Python file uses the following encoding: utf-8
 from pathlib import Path
 from botUser import BotUser
+import copy
 import configparser
 import sqlite3
 import random
@@ -9,11 +10,16 @@ from botWiki import BotWiki
 import copy
 import requests
 from bs4 import BeautifulSoup
+from currenciesData import getAllCurrencies
 from aiogram.types import InputFile
 
 ids_txt_file = "userIDs.txt"
 config_file_path="botSettings.ini"
 fail_emoji=(":ogre:",":goblin:",":skull:")
+
+dollarIMG = '\U0001F4B5'
+eurIMG    = '\U0001F4B6'
+timeIMG   = '\U0000231B'
 
 class BotData:
     def __init__(self):
@@ -133,18 +139,16 @@ class BotData:
                 return '\U00002705'
             else:
                 return '\U0000274C'
-        def getLockoDataStr(currencyDist : dict, oldCourse : float):
+        def getLockoDataStr(currencyIMG,currencyDist : dict, oldCourse : float):
             dCourse = currencyDist['buy'] - oldCourse
             if dCourse==0:
-                lockoStr='\U0001F4B6  {} / {} '.format(currencyDist['sale'],currencyDist['buy'])
+                lockoStr=currencyIMG+'  {} / {} '.format(currencyDist['sale'],currencyDist['buy'])
             else:
-                lockoStr='\U0001F4B5  {} / {} {} {:.2f} руб'.format(currencyDist['sale'],
+                lockoStr=currencyIMG+'  {} / {} {} {:.2f} руб'.format(currencyDist['sale'],
                                                                     currencyDist['buy'],
                                                                     getImage(dCourse),
                                                                     dCourse)
             return lockoStr
-
-
         # Курc локо
         url = 'https://www.banki.ru/products/currency/bank/locko-bank/usd/moskva/#bank-rates'
         h = {'User-Agent': 'Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 107.0.0.0 Safari / 537.36'}
@@ -157,14 +161,14 @@ class BotData:
         self.lockoUSD['sale'] = float(currPropList[3].text.strip().replace(",","."))
         self.lockoUSD['buy']  = float(currPropList[4].text.strip().replace(",","."))
         lockoList = []
-        lockoList.append(getLockoDataStr(self.lockoUSD,self.lockoUSDold['buy']))
+        lockoList.append(getLockoDataStr(dollarIMG,self.lockoUSD,self.lockoUSDold['buy']))
         #EUR
         eur_section = locko_section.findAll('tr')[1]
         currPropList = eur_section.findAll('td')
         self.lockoEUR['sale'] = float(currPropList[3].text.strip().replace(",","."))
         self.lockoEUR['buy']  = float(currPropList[4].text.strip().replace(",","."))
-        lockoList.append(getLockoDataStr(self.lockoEUR, self.lockoEURold['buy']))
-        lockoList.append('\U0000231B  {}'.format(currPropList[5].text.strip()))
+        lockoList.append(getLockoDataStr(eurIMG,self.lockoEUR, self.lockoEURold['buy']))
+        lockoList.append(timeIMG+'  {}'.format(currPropList[5].text.strip()))
         #Записать старые значения
         if (self.lockoUSD != self.lockoUSDold) or (self.lockoEUR != self.lockoEURold):
             self.lockoEURold = copy.deepcopy(self.lockoEUR)
@@ -191,15 +195,23 @@ class BotData:
         lockoStr=''
         for str in lockoList:
              lockoStr += '\n' + str
-        #if (self.lockoUSD!=self.lockoUSDold) or (self.lockoEUR!=self.lockoEURold):
-        #    self.lockoEURold=copy.deepcopy(self.lockoEUR)
-        #    self.lockoUSDold=copy.deepcopy(self.lockoUSD)
-        #    print('self.lockoUSDold = '+self.lockoUSDold)
-        #    newLockoData=True
-        #else:
-        #    newLockoData=False
         return lockoStr,newLockoData
 
+    def getAllBankData(self):
+        banksData=getAllCurrencies()
+        banksData.sort(key=lambda banksData: banksData['eur''sale'])
+        bestEUR=banksData[0]
+        banksData.sort(key=lambda banksData: banksData['usd''sale'])
+        bestUSD = banksData[0]
+        strList,str=[],''
+        strList.append('*Лучшие курсы обмена валют : *'.format(len(banksData)))
+        strList.append('Нашел банков : {}'.format(len(banksData)))
+        strList.append(dollarIMG + '  {}/{} ({})'.format(bestUSD['usd''buy'], bestUSD['usd''sale'], bestUSD['name']))
+        strList.append(eurIMG   +'  {}/{} ({})'.format(bestEUR['eur''buy'],bestEUR['eur''sale'],bestEUR['name']))
+        strList.append(timeIMG  +'  {}'.format(bestEUR['time']))
+        for tekStr in strList:
+             str += '\n' + tekStr
+        return str
 
     def getRandomPhoto(self):
         photo_list=[]

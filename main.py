@@ -28,7 +28,7 @@ dp.register_message_handler(cmd_start, commands="start")
 
 #Реализация таймера
 scheduler=AsyncIOScheduler()
-scheduler.add_job(send_locko_message, "interval", minutes=5, args=(dp,botData))
+scheduler.add_job(send_locko_message, "interval", seconds=5, args=(dp,botData))
 scheduler.add_job(send_locko_moex_message, "interval", minutes=150, args=(dp,botData))
 scheduler.add_job(noon_send_message, "cron",hour='12',minute='00', second='00',args=(dp,botData))
 scheduler.add_job(send_cb_message, "cron",hour='15',minute='00', second='00',args=(dp,botData))
@@ -56,6 +56,15 @@ async def cmd_USD(message: types.Message):
                                '*Курс в Локо\-банке: *',
                                parse_mode='MarkdownV2')
     await dp.bot.send_message(message.from_user.id, lockoStr , parse_mode='Markdown')
+
+    bestCurrenciesStr=botData.getAllBankData()
+    await dp.bot.send_message(message.from_user.id, bestCurrenciesStr, parse_mode='Markdown')
+
+@dp.callback_query_handler(text="find_best")
+async def find_best(call: types.CallbackQuery):
+    bestCurrenciesStr = botData.getAllBankData()
+    await call.message.answer(bestCurrenciesStr, parse_mode='Markdown')
+    await call.answer()
 
 @dp.message_handler(content_types=["photo"])
 async def get_photo(message):
@@ -163,6 +172,7 @@ async def echo(message: types.Message):
 if __name__ == '__main__':
     parser = createParser()
     namespace = parser.parse_args()
+    #print(botData.getAllBankData())
     if not namespace.endproc:
         scheduler.start()
         executor.start_polling(dp, skip_updates=True)

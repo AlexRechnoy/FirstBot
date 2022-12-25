@@ -16,6 +16,7 @@ botInlineKbd.add(*btnsInline)
 
 botStopNotifyKbd = InlineKeyboardMarkup()
 botStopNotifyKbd.add(InlineKeyboardButton(text="Отменить оповещения", callback_data="stop_notify"))
+botStopNotifyKbd.add(InlineKeyboardButton(text="Найти лучшие курсы", callback_data="find_best"))
 
 botStartNotifyKbd = InlineKeyboardMarkup()
 botStartNotifyKbd.add(InlineKeyboardButton(text="Включить оповещения", callback_data="start_notify"))
