@@ -197,7 +197,7 @@ class BotData:
              lockoStr += '\n' + str
         return lockoStr,newLockoData
 
-    def getAllBankData(self):
+    def getBestCurrencies(self):
         banksData=getAllCurrencies()
         banksData.sort(key=lambda banksData: banksData['eur''sale'])
         bestEUR=banksData[0]
@@ -209,6 +209,19 @@ class BotData:
         strList.append(dollarIMG + '  {}/{} ({})'.format(bestUSD['usd''buy'], bestUSD['usd''sale'], bestUSD['name']))
         strList.append(eurIMG   +'  {}/{} ({})'.format(bestEUR['eur''buy'],bestEUR['eur''sale'],bestEUR['name']))
         strList.append(timeIMG  +'  {}'.format(bestEUR['time']))
+        for tekStr in strList:
+             str += '\n' + tekStr
+        return str
+
+    def getAllCurrencies(self):
+        banksData=getAllCurrencies()
+        banksData.sort(key=lambda banksData: banksData['eur''sale'])
+        strList,str=[],''
+        strList.append('*Курсы покупки валюты в банках: *')
+        index=1
+        for bankData in banksData :
+            strList.append('{}){} {}{}  {}{}'.format(index,bankData['name'],eurIMG,bankData['eur''sale'],dollarIMG,bankData['usd''sale']))
+            index+=1
         for tekStr in strList:
              str += '\n' + tekStr
         return str

@@ -57,13 +57,19 @@ async def cmd_USD(message: types.Message):
                                parse_mode='MarkdownV2')
     await dp.bot.send_message(message.from_user.id, lockoStr , parse_mode='Markdown')
 
-    bestCurrenciesStr=botData.getAllBankData()
+    bestCurrenciesStr=botData.getBestCurrencies()
     await dp.bot.send_message(message.from_user.id, bestCurrenciesStr, parse_mode='Markdown')
 
 @dp.callback_query_handler(text="find_best")
 async def find_best(call: types.CallbackQuery):
-    bestCurrenciesStr = botData.getAllBankData()
+    bestCurrenciesStr = botData.getBestCurrencies()
     await call.message.answer(bestCurrenciesStr, parse_mode='Markdown')
+    await call.answer()
+
+@dp.callback_query_handler(text="show_all")
+async def show_all(call: types.CallbackQuery):
+    showAllStr = botData.getAllCurrencies()
+    await call.message.answer(showAllStr, parse_mode='Markdown')
     await call.answer()
 
 @dp.message_handler(content_types=["photo"])
@@ -74,16 +80,6 @@ async def get_photo(message):
     for file in os.listdir('img/'):
         print(file)
 
-@dp.message_handler(Text(equals="Квадрат"))
-async def send_2rd_command(message: types.Message):
-    await bot.send_message(message.from_user.id,
-                           "Число {} в квадрате = {}".format(float(botData.val),float(botData.val)*float(botData.val)),
-                           reply_markup=types.ReplyKeyboardRemove())
-
-@dp.callback_query_handler(text="square")
-async def send_square(call: types.CallbackQuery):
-    await call.message.answer("Число {} в квадрате = {}".format(float(botData.val),float(botData.val)*float(botData.val)))
-    await call.answer()
 
 @dp.message_handler(content_types=['location'])
 async def handle_location(message: types.Message):
@@ -100,17 +96,6 @@ async def send_cube(call: types.CallbackQuery):
     await call.message.answer('не могу обработать координаты!!!')
 
 
-@dp.message_handler(Text(equals="Куб"))
-async def send_3rd_command(message: types.Message):
-    await bot.send_message(message.from_user.id,
-                           "Число {} в кубе = {}".format(float(botData.val),float(botData.val)*float(botData.val)*float(botData.val)),
-                           reply_markup=types.ReplyKeyboardRemove())
-
-@dp.callback_query_handler(text="cube")
-async def send_cube(call: types.CallbackQuery):
-    await call.message.answer("Число {} в кубе = {}".format(float(botData.val),float(botData.val)*float(botData.val)*float(botData.val)))
-    await call.answer()
-
 @dp.callback_query_handler(text="stop_notify")
 async def send_stop_notify(call: types.CallbackQuery):
     botData.getUserFromId(call.message.chat.id).notify=False
@@ -120,7 +105,7 @@ async def send_stop_notify(call: types.CallbackQuery):
 @dp.callback_query_handler(text="start_notify")
 async def send_start_notify(call: types.CallbackQuery):
     botData.getUserFromId(call.message.chat.id).notify = True
-    await call.message.answer("Начинаю спамит!!! (Оповещения включены)")
+    await call.message.answer("Начинаю спамить!!! (Оповещения включены)")
     await call.answer()
 
 @dp.message_handler(commands=['bear'])
@@ -142,10 +127,6 @@ async def echo(message: types.Message):
         botData.id.append(int(newID))
         botData.writeIDtoFile()
 
-    #if message.from_user.id not in botData.id:
-    #    newID=message.from_user.id
-    #    botData.id.append(int(message.from_user.id))
-    #    botData.writeIDtoFile()
     if re.match(r"^[0-9.\-]+$", message.text):
         botData.val=float(message.text)
         for botUser in botData.botUsers :
@@ -158,7 +139,7 @@ async def echo(message: types.Message):
             else:
                 await bot.send_message(userId,"... Кто-то прислал  мне число...Число {} в квадрате = {}".format(float(botData.val),float(botData.val)*float(botData.val)))
 
-        await message.answer("В какую степень возвести?", reply_markup=botInlineKbd)
+        #await message.answer("В какую степень возвести?", reply_markup=botInlineKbd)
     else:
         await bot.send_message(message.from_user.id,
                                emoji.emojize(botData.getFailEmoji()))

@@ -1,11 +1,5 @@
 from bs4 import BeautifulSoup
 import requests
-'''
-bankData = {'name' : '',
-            'eur'  : dict(sale=0.0, buy=0.0),
-            'usd'  : dict(sale=0.0, buy=0.0),
-            'time' : ''
-           }'''
 
 def getAllCurrencies():
     def getBankData(bankSection):
@@ -23,8 +17,7 @@ def getAllCurrencies():
         buyE, sellE = getExchangeRate(bankSection,'EUR')
         buyU, sellU = getExchangeRate(bankSection,'USD')
         return buyE, sellE, buyU, sellU, bankName, exchangeTime
-
-
+    ######
     h = {'User-Agent': 'Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 107.0.0.0 Safari / 537.36'}
     url = 'https://www.banki.ru/products/currency/cash/moskva/#bank-rates'
     r = requests.get(url, headers=h)
@@ -33,8 +26,9 @@ def getAllCurrencies():
     cash_table_section = soup.findAll('div', {'class': 'exchange-calculator-rates table-flex__row-group'})
     banksData=[]
     for bankSection in cash_table_section:
-        buy1, sell1, buy2, sell2, bankName, exchangeTime=getBankData(bankSection)
-        #print(bankName)
-        bankData={'name': bankName,'eur''sale':sell1,'eur''buy' : buy1,'usd''sale':sell2,'usd''buy':buy2,'time':exchangeTime}
+        buyE, sellE, buyU, sellU, bankName, exchangeTime=getBankData(bankSection)
+        if (buyE<10) or (sellE<10) or (buyU<10) or (sellU<10):
+            continue
+        bankData={'name': bankName,'eur''sale':sellE,'eur''buy' : buyE,'usd''sale':sellU,'usd''buy':buyU,'time':exchangeTime}
         banksData.append(bankData)
     return banksData

@@ -9,14 +9,14 @@ botKbd = ReplyKeyboardMarkup(resize_keyboard=True,one_time_keyboard=True).row(bt
 botKbd.row(btn3)
 
 botInlineKbd = InlineKeyboardMarkup(row_width=2)
-btnsInline = [InlineKeyboardButton(text="Квадрат", callback_data="square"),
-              InlineKeyboardButton(text="Куб", callback_data="cube"),
-              InlineKeyboardButton(text="Отправить свою локацию️ 🗺", callback_data="location")]
+btnsInline = [InlineKeyboardButton(text="Отправить свою локацию️ 🗺", callback_data="location")]
 botInlineKbd.add(*btnsInline)
 
 botStopNotifyKbd = InlineKeyboardMarkup()
 botStopNotifyKbd.add(InlineKeyboardButton(text="Отменить оповещения", callback_data="stop_notify"))
-botStopNotifyKbd.add(InlineKeyboardButton(text="Найти лучшие курсы", callback_data="find_best"))
+
+botStopNotifyKbd.row(InlineKeyboardButton(text="Найти лучшие курсы", callback_data="find_best"),
+                     InlineKeyboardButton(text="Показать все", callback_data="show_all") )
 
 botStartNotifyKbd = InlineKeyboardMarkup()
 botStartNotifyKbd.add(InlineKeyboardButton(text="Включить оповещения", callback_data="start_notify"))
