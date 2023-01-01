@@ -5,7 +5,7 @@ from aiogram import Dispatcher
 
 #Реализация таймера
 async def  send_locko_moex_message(dp:Dispatcher,botCMD:BotCMD):
-    for botUser in botData.botUsers :
+    for botUser in botCMD.botUsers :
         if botUser.notify:
             userId = botUser.id
             lockoStr, moexStr, cbStr = botCMD.getCBCurrencies_()
