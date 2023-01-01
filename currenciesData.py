@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 
 def getAllCurrencies():
+    ##########
     def getBankData(bankSection):
         def getExchangeRate(bankSection,currencyCode : str):
             cashSections = bankSection.findAll('div', {'data-currencies-code': currencyCode})
@@ -17,13 +18,12 @@ def getAllCurrencies():
         buyE, sellE = getExchangeRate(bankSection,'EUR')
         buyU, sellU = getExchangeRate(bankSection,'USD')
         return buyE, sellE, buyU, sellU, bankName, exchangeTime
-    ######
+    ##########
     h = {'User-Agent': 'Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 107.0.0.0 Safari / 537.36'}
     url = 'https://www.banki.ru/products/currency/cash/moskva/#bank-rates'
     r = requests.get(url, headers=h)
     soup = BeautifulSoup(r.content, 'html.parser')
-
-    cash_table_section = soup.findAll('div', {'class': 'exchange-calculator-rates table-flex__row-group'})
+    cash_table_section = soup.findAll('div', {'data-test': 'exchange-row'})
     banksData=[]
     for bankSection in cash_table_section:
         buyE, sellE, buyU, sellU, bankName, exchangeTime=getBankData(bankSection)

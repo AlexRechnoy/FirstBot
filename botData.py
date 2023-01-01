@@ -48,27 +48,6 @@ class BotData:
                          """)
         self.conn.commit()
 
-    def userIDexists(self, id):
-        exists=False
-        for botUser in self.botUsers:
-            if botUser.id==id:
-                exists=True
-        return exists
-
-    def userIDs(self):
-        IDs=[]
-        for botUser in self.botUsers:
-            IDs.append(botUser.id)
-        return IDs
-
-    def getUserFromId(self,id):
-        print('getUserFromId')
-        print(id)
-        for botUser in self.botUsers:
-            if botUser.id==id:
-                print('getUserFromId!!!')
-                return botUser
-
     def __readConfig(self):
         file=Path(config_file_path)
         config = configparser.ConfigParser()
@@ -88,6 +67,27 @@ class BotData:
                 #self.id.append(userId)
             f.close()
 
+    def _getUserFromId(self,id):
+        print('getUserFromId')
+        print(id)
+        for botUser in self.botUsers:
+            if botUser.id==id:
+                print('getUserFromId!!!')
+                return botUser
+
+    def userIDexists(self, id):
+        exists=False
+        for botUser in self.botUsers:
+            if botUser.id==id:
+                exists=True
+        return exists
+
+    def userIDs(self):
+        IDs=[]
+        for botUser in self.botUsers:
+            IDs.append(botUser.id)
+        return IDs
+
     def getFailEmoji(self):
         index=random.randint(0,len(fail_emoji)-1)
         return fail_emoji[index]
@@ -102,7 +102,6 @@ class BotData:
         for line in s2:
             answer.append(line.text)
         return answer
-
 
     def __parseCurrencies(self):
         def calcCurrency(currencyList):
@@ -196,35 +195,6 @@ class BotData:
         for str in lockoList:
              lockoStr += '\n' + str
         return lockoStr,newLockoData
-
-    def getBestCurrencies(self):
-        banksData=getAllCurrencies()
-        banksData.sort(key=lambda banksData: banksData['eur''sale'])
-        bestEUR=banksData[0]
-        banksData.sort(key=lambda banksData: banksData['usd''sale'])
-        bestUSD = banksData[0]
-        strList,str=[],''
-        strList.append('*Лучшие курсы обмена валют : *'.format(len(banksData)))
-        strList.append('Нашел банков : {}'.format(len(banksData)))
-        strList.append(dollarIMG + '  {}/{} ({})'.format(bestUSD['usd''buy'], bestUSD['usd''sale'], bestUSD['name']))
-        strList.append(eurIMG   +'  {}/{} ({})'.format(bestEUR['eur''buy'],bestEUR['eur''sale'],bestEUR['name']))
-        strList.append(timeIMG  +'  {}'.format(bestEUR['time']))
-        for tekStr in strList:
-             str += '\n' + tekStr
-        return str
-
-    def getAllCurrencies(self):
-        banksData=getAllCurrencies()
-        banksData.sort(key=lambda banksData: banksData['eur''sale'])
-        strList,str=[],''
-        strList.append('*Курсы покупки валюты в банках: *')
-        index=1
-        for bankData in banksData :
-            strList.append('{}){} {}{}  {}{}'.format(index,bankData['name'],eurIMG,bankData['eur''sale'],dollarIMG,bankData['usd''sale']))
-            index+=1
-        for tekStr in strList:
-             str += '\n' + tekStr
-        return str
 
     def getRandomPhoto(self):
         photo_list=[]
